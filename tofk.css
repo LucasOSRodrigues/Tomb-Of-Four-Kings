@@ -1,0 +1,15 @@
+body {
+  margin: 0;
+  background: radial-gradient(farthest-side at 10% 10%, pink, beige) fixed;
+}
+.container {
+  display: grid;
+  grid-template-rows: repeat(5, 1fr);
+  grid-template-columns: 1fr;
+  width: 100vw;
+  height: 100vh;
+  gap: 10px;
+}
+.container > div {
+  background-color: white;
+}
