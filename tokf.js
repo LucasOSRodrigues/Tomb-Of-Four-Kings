@@ -26,5 +26,8 @@ for (let suit of ["door", "monster", "trap", "hearts"]) {
 deck.push({ type: "treasure", suit: "joker", value: "scroll" })
 deck.sort(() => (Math.random() > 0.5 ? 1 : -1))
 
-
+function createCard() {
+  const card = document.createElement("div")
+  card.className = "card"
+}
 
