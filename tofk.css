@@ -1,15 +1,71 @@
+:root {
+  --cardHeight: 23.7vh;
+  --cardWidth: 125px;
+}
 body {
   margin: 0;
-  background: radial-gradient(farthest-side at 10% 10%, pink, beige) fixed;
+  /* background: radial-gradient(farthest-side at 10% 10%, pink, beige) fixed; */
+  background: black;
 }
-.container {
-  display: grid;
-  grid-template-rows: repeat(5, 1fr);
-  grid-template-columns: 1fr;
-  width: 100vw;
-  height: 100vh;
-  gap: 10px;
-}
-.container > div {
+div {
   background-color: white;
+}
+.topCol {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 5px;
+  justify-content: space-between;
+}
+.torches {
+  background-color: yellow;
+  display: flex;
+  height: var(--cardHeight);
+  width: calc(var(--cardWidth) * 4 + 40px);
+}
+.rooms {
+  background-color: wheat;
+  height: var(--cardHeight);
+  width: var(--cardWidth);
+}
+
+.dungeonContainer {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 5px;
+}
+.delve,
+.retreat {
+display: flex;
+  height: var(--cardHeight);
+  background-color: pink;
+  margin-bottom: 10px;
+}
+.retreat{
+  flex-direction: column-reverse;
+}
+
+.bottomCol {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 5px;
+  justify-content: space-between;
+}
+.hand{
+  height: var(--cardHeight);
+  display: flex;
+  width: calc(var(--cardWidth)*3 + 30px);
+  background-color: gray;
+}
+.HP{
+  height: var(--cardHeight);
+  display: flex;
+  width: var(--cardWidth);
+  background-color: beige;
+}
+/* Segue seletores não prontos */
+
+.card {
+  height: var(--cardHeight);
+  width: var(--cardWidth);
+  margin: 5px;
 }
