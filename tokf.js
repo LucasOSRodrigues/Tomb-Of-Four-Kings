@@ -1,9 +1,12 @@
+//* HTML content
 const torches = document.querySelector(".torches")
 const delve = document.querySelector(".delve")
 const retreat = document.querySelector(".retreat")
 const buttons = document.querySelector(".buttons")
 const hand = document.querySelector(".hand")
 const HP = document.querySelector(".HP")
+
+//* Code var's
 const deck = []
 let hp = 9
 //todo Gerar baralho
@@ -21,3 +24,4 @@ for (let suit of ["door", "monster", "trap", "hearts"]) {
 deck.push({ type: "treasure", suit: "joker", value: "scroll" })
 deck.sort(() => (Math.random() > 0.5 ? 1 : -1))
 console.log(deck)
+hand.innerHTML = `${crown} ${key} ${berserk} ${potion} ${lockpick} ${gate} ${monster} ${trap} ${wing} ${torch} ${scroll}`
