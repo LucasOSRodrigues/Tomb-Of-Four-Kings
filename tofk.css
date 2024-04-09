@@ -1,16 +1,13 @@
 @import url("https://fonts.googleapis.com/css2?family=M+PLUS+1+Code:wght@100..700&display=swap");
 :root {
-  --cardHeight: 23.7vh;
+  --cardHeight: 23.1vh;
   --cardWidth: 125px;
 }
 body {
   font: normal normal large "M PLUS 1 Code", courier, serif;
-  margin: 0;
+  margin: 5px;
   /* background: radial-gradient(farthest-side at 10% 10%, pink, beige) fixed; */
   /* background: black; */
-}
-div {
-  background-color: white;
 }
 .topCol {
   display: flex;
@@ -19,13 +16,13 @@ div {
   justify-content: space-between;
 }
 .torches {
-  background-color: yellow;
+  border: 2px dotted gray;
   display: flex;
   height: var(--cardHeight);
   width: calc(var(--cardWidth) * 4 + 40px);
 }
 .rooms {
-  background-color: wheat;
+  border: 2px dotted gray;
   height: var(--cardHeight);
   width: var(--cardWidth);
 }
@@ -39,7 +36,7 @@ div {
 .retreat {
   display: flex;
   height: var(--cardHeight);
-  background-color: pink;
+  border: 2px dotted gray;
   margin-bottom: 10px;
 }
 .retreat {
@@ -56,13 +53,13 @@ div {
   height: var(--cardHeight);
   display: flex;
   width: calc(var(--cardWidth) * 4 + 40px);
-  background-color: gray;
+  border: 2px dotted gray;
 }
 .HP {
   height: var(--cardHeight);
   display: flex;
   width: var(--cardWidth);
-  background-color: beige;
+  border: 2px dotted gray;
 }
 /* Segue seletores não prontos */
 
