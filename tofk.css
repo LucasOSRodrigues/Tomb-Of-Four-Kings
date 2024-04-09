@@ -1,10 +1,10 @@
-@import url("https://fonts.googleapis.com/css2?family=Playfair:ital,opsz,wght@0,5..1200,300..900;1,5..1200,300..900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=M+PLUS+1+Code:wght@100..700&display=swap");
 :root {
   --cardHeight: 23.7vh;
   --cardWidth: 125px;
 }
 body {
-  font: italic bold large "Playfair", times, serif ;
+  font: normal normal large "M PLUS 1 Code", courier, serif;
   margin: 0;
   /* background: radial-gradient(farthest-side at 10% 10%, pink, beige) fixed; */
   /* background: black; */
@@ -55,7 +55,7 @@ div {
 .hand {
   height: var(--cardHeight);
   display: flex;
-  width: calc(var(--cardWidth) * 3 + 30px);
+  width: calc(var(--cardWidth) * 4 + 40px);
   background-color: gray;
 }
 .HP {
