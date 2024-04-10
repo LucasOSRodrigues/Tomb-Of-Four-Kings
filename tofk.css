@@ -14,33 +14,44 @@ body {
   border: 2px solid rgba(128, 128, 128, 0.2);
   background-color: rgba(255, 255, 255, 0.05);
 }
-.topCol {
+.cardBack {
+  background: linear-gradient(var(--fade));
+  border: 1px solid gray;
+  height: var(--cardHeight);
+  width: var(--cardWidth);
+}
+.cardFront {
+  background: linear-gradient(90deg, gray, silver);
+  border: 1px solid #a22273;
+  height: var(--cardHeight);
+  width: var(--cardWidth);
+}
+.topCol,
+.bottomCol {
   display: flex;
   flex-direction: row;
   margin-bottom: 5px;
   justify-content: space-between;
 }
-.torches, .hand{
-  display: flex;
+.torches,
+.hand {
+  display: inherit;
   height: var(--cardHeight);
   width: calc(var(--cardWidth) * 4 + 40px);
 }
-.rooms, .HP {
-  background: linear-gradient(var(--fade));
-  display: flex;
-  flex-direction: column;
-  height: var(--cardHeight);
-  width: var(--cardWidth);
+.rooms {
+  display: inherit;
   justify-content: center;
+  align-items: center;
 }
-p{
-  align-self: center;
-}
-.remaining {
+
+#roomsLeft {
+  display: inherit;
   background-color: rgba(128, 128, 128, 0.5);
-  text-align: center;
-  width: 60px;
-  height: 25px;
+  justify-content: center;
+  align-items: center;
+  width: 45px;
+  height: 45px;
   border-radius: 25px;
 }
 
@@ -52,29 +63,41 @@ p{
   justify-content: center;
 }
 .delve {
-  display: flex;
+  display: inherit;
   height: var(--cardHeight);
   margin-bottom: 10px;
 }
 .retreat {
   visibility: hidden;
-  display: flex;
+  display: inherit;
   /* height: var(--cardHeight);  ATIVAR QND FOR RETORNAR */
   margin-bottom: 10px;
   flex-direction: column-reverse;
 }
-
-.bottomCol {
-  display: flex;
-  flex-direction: row;
-  margin-bottom: 5px;
-  justify-content: space-between;
+.HP {
+  display: inherit;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
 }
-
+#heart {
+  background-color: white;
+}
 /* Segue seletores não prontos */
 
 .card {
   height: var(--cardHeight);
   width: var(--cardWidth);
   margin: 5px;
+}
+
+.ghost {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: calc(var(--cardHeight)-2px);
+  width: var(--cardWidth);
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 5px solid rgba(128, 128, 128, 0.05);
+  border-radius: 4px;
 }
