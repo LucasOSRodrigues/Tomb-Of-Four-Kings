@@ -1,38 +1,45 @@
 //* HTML content.
 const TORCHES = document.querySelector(".torches")
-const DIVINITY = document.querySelector("divinity")
-const DECK = document.querySelector(".deck")
-const ROOMS_LEFT = document.querySelector("#roomsLeft")
+const HAND = document.querySelector(".hand")
 const DELVE = document.querySelector(".delve")
 const RETREAT = document.querySelector(".retreat")
-const HAND = document.querySelector(".hand")
+const DECK = document.querySelector(".deck")
+const ROOMS_LEFT = document.querySelector("#roomsLeft")
+const TREASURE = document.querySelector(".treasure")
+const ACTION = document.querySelector(".action")
 const HP = document.querySelector(".HP")
 
 let hp = 9
 let lane = DELVE
 let turn = 0
 let retreatTurn = null
-let TempTreasure = []
+let unusedDivinity = 0
+let torchCounter = 0
 drawHP()
 createGhost()
 
 //* Gerador de baralho.
 const deck = []
-for (let index = 2; index <= 10; index++) {
-  deck.push({ type: "encounter", suit: "door", value: index })
-  deck.push({ type: "encounter", suit: "monster", value: index })
-  deck.push({ type: "encounter", suit: "trap", value: index })
-}
 for (let suit of ["door", "monster", "trap", "hearts"]) {
   deck.push({ type: "treasure", suit: suit })
   deck.push({ type: "treasure", suit: "king" })
   deck.push({ type: "auto", suit: "divinity" })
   deck.push({ type: "auto", suit: "torch" })
 }
+for (let index = 2; index <= 10; index++) {
+  deck.push({ type: "encounter", suit: "door", value: index })
+  deck.push({ type: "encounter", suit: "monster", value: index })
+  deck.push({ type: "encounter", suit: "trap", value: index })
+}
 deck.push({ type: "treasure", suit: "scroll" })
-deck.sort(() => (Math.random() > 0.5 ? 1 : -1))
+// deck.sort(() => (Math.random() > 0.5 ? 1 : -1))
 console.log(deck)
 
+for (let cardAmount = 0; cardAmount < deck.length; cardAmount++) {
+  setTimeout(() => {
+    ROOMS_LEFT.innerText = cardAmount + 1
+  }, cardAmount * 16)
+}
 function drawHP() {
   HP.innerHTML = ""
   for (let S2 = 0; S2 < hp; S2++)
@@ -78,22 +85,33 @@ function dealMainCard() {
       card.onclick = () => addCardOn(shiftedCard)
       card.innerHTML += handleValue(shiftedCard)
 
+      turn++
       lane.append(card)
+      return false
 
-      break
     case "treasure":
-      TempTreasure.push(shiftedCard)
+      const treasureCard = document.createElement("div")
+      treasureCard.className = "flexCard front"
+      treasureCard.innerHTML = handleSVG(shiftedCard)
+      TREASURE.append(treasureCard)
 
-      dealMainCard()
-      break
+      return true
     case "auto":
       const autoCard = document.createElement("div")
-      autoCard.className = "card front"
       autoCard.innerHTML = handleSVG(shiftedCard)
       if (shiftedCard.suit === "torch") {
+        autoCard.className = "flexCard front"
+        torchCounter++
         TORCHES.append(autoCard)
+        return true
       } else {
-        DIVINITY.append(autoCard)
+        if (ACTION.innerHTML) {
+          unusedDivinity++
+          ACTION.innerHTML = ""
+        }
+        autoCard.className = "card front"
+        ACTION.append(autoCard)
+        return true
       }
   }
 }
@@ -108,13 +126,13 @@ function handleValue(card) {
 }
 
 function delveDungeon() {
-  turn++
   deleteGhost()
   flipLastCard()
-  dealMainCard()
-  // if (turn !== retreatTurn * 2 - 1) {
-  //   createGhost()
-  // }
+  if (dealMainCard()) {
+    if (turn !== retreatTurn * 2 - 1) {
+      createGhost()
+    }
+  }
 }
 
 function flipLastCard() {
