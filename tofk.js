@@ -67,8 +67,16 @@ function dealCards() {
   const plusDiv = document.createElement("div")
   card.className = "card front"
   card.innerHTML = handleSVG(shiftedCard)
+  plusDiv.innerHTML = plus
   card.append(plusDiv)
+  card.innerHTML += handleValue(shiftedCard)
+
   lane.append(card)
+}
+
+function handleValue(card) {
+  if (card.value) return card.value
+  return handleSVG(card)
 }
 
 function delveDungeon() {
