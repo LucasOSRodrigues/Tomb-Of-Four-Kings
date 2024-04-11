@@ -25,57 +25,19 @@ const table = {
     trap: trap,
   },
   treasure: {
-    skill: {
-      door: key,
-      monster: berserk,
-      trap: lockpick,
-      hearts: potion,
-    },
+    door: key,
+    monster: berserk,
+    trap: lockpick,
+    hearts: potion,
     king: crown,
     scroll: Scroll,
   },
-  divinity: wing,
-  torch: torch,
+  auto: {
+    divinity: wing,
+    torch: torch,
+  },
 }
 
 function handleSVG(card) {
-  switch (card.type) {
-    case "encounter":
-      switch (card.suit) {
-        case "door":
-          return door
-        case "monster":
-          return monster
-        case "trap":
-          return trap
-      }
-      break
-    case "treasure":
-      switch (card.value) {
-        case "skill":
-          switch (card.suit) {
-            case "door":
-              return key
-            case "monster":
-              return berserk
-            case "trap":
-              return lockpick
-            case "hearts":
-              return potion
-          }
-          break
-        case "king":
-          return crown
-        case "scroll":
-          return Scroll
-      }
-      break
-    case "auto":
-      switch (card.value) {
-        case "divinity":
-          return wing
-        case "torch":
-          return torch
-      }
-  }
+  return table[card.type][card.suit]
 }

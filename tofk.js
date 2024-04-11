@@ -8,7 +8,7 @@ const HAND = document.querySelector(".hand")
 const HP = document.querySelector(".HP")
 
 let hp = 9
-let direction = DELVE
+let lane = DELVE
 let turn = 0
 let retreatTurn
 drawHP()
@@ -22,12 +22,12 @@ for (let index = 2; index <= 10; index++) {
   deck.push({ type: "encounter", suit: "trap", value: index })
 }
 for (let suit of ["door", "monster", "trap", "hearts"]) {
-  deck.push({ type: "treasure", suit: suit, value: "skill" })
-  deck.push({ type: "treasure", suit: suit, value: "king" })
-  deck.push({ type: "auto", suit: suit, value: "divinity" })
-  deck.push({ type: "auto", suit: suit, value: "torch" })
+  deck.push({ type: "treasure", suit: suit })
+  deck.push({ type: "treasure", suit: "king" })
+  deck.push({ type: "auto", suit: "divinity" })
+  deck.push({ type: "auto", suit: "torch" })
 }
-deck.push({ type: "treasure", suit: "joker", value: "scroll" })
+deck.push({ type: "treasure", suit: "scroll" })
 deck.sort(() => (Math.random() > 0.5 ? 1 : -1))
 
 function drawHP() {
@@ -47,28 +47,28 @@ function createGhost() {
   GO_BTN.innerHTML = plus
   GHOST.append(GO_BTN)
 
-  if (direction === DELVE && turn > 1) {
+  if (lane === DELVE && turn > 1) {
     const RETURN_BTN = document.createElement("div")
     RETURN_BTN.onclick = retreatDungeon
     RETURN_BTN.innerHTML = retreat
     RETURN_BTN.id = "return_btn"
     GHOST.append(RETURN_BTN)
   }
-  direction.append(GHOST)
+  lane.append(GHOST)
 }
 
 function deleteGhost() {
-  direction.removeChild(document.querySelector(".ghost"))
+  lane.removeChild(document.querySelector(".ghost"))
 }
 
 function dealCards() {
-  shiftedCard = deck.shift()
+  let shiftedCard = deck.shift()
   const card = document.createElement("div")
   const plusDiv = document.createElement("div")
   card.className = "card front"
   card.innerHTML = handleSVG(shiftedCard)
   card.append(plusDiv)
-  direction.append(card)
+  lane.append(card)
 }
 
 function delveDungeon() {
@@ -76,13 +76,13 @@ function delveDungeon() {
   deleteGhost()
   flipLastCard()
   dealCards()
-  if (turn !== retreatTurn * 2 - 1) {
-    createGhost()
-  }
+  // if (turn !== retreatTurn * 2 - 1) {
+  //   createGhost()
+  // }
 }
 
 function flipLastCard() {
-  let lastCard = direction.lastChild
+  let lastCard = lane.lastChild
   if (lastCard) {
     lastCard.innerHTML = ""
     lastCard.className = "card back"
@@ -96,7 +96,7 @@ function retreatDungeon() {
   showRetreatCard()
   deleteGhost()
   flipLastCard()
-  direction = RETREAT
+  lane = RETREAT
   showRetreatLane()
   dealCards()
 
