@@ -1,5 +1,6 @@
 //* HTML content.
 const TORCHES = document.querySelector(".torches")
+const DIVINITY = document.querySelector("divinity")
 const DECK = document.querySelector(".deck")
 const ROOMS_LEFT = document.querySelector("#roomsLeft")
 const DELVE = document.querySelector(".delve")
@@ -10,11 +11,12 @@ const HP = document.querySelector(".HP")
 let hp = 9
 let lane = DELVE
 let turn = 0
-let retreatTurn
+let retreatTurn = null
+let TempTreasure = []
 drawHP()
 createGhost()
 
-//? Gerador de baralho.
+//* Gerador de baralho.
 const deck = []
 for (let index = 2; index <= 10; index++) {
   deck.push({ type: "encounter", suit: "door", value: index })
@@ -29,6 +31,7 @@ for (let suit of ["door", "monster", "trap", "hearts"]) {
 }
 deck.push({ type: "treasure", suit: "scroll" })
 deck.sort(() => (Math.random() > 0.5 ? 1 : -1))
+console.log(deck)
 
 function drawHP() {
   HP.innerHTML = ""
@@ -61,17 +64,42 @@ function deleteGhost() {
   lane.removeChild(document.querySelector(".ghost"))
 }
 
-function dealCards() {
+function dealMainCard() {
   let shiftedCard = deck.shift()
-  const card = document.createElement("div")
-  const plusDiv = document.createElement("div")
-  card.className = "card front"
-  card.innerHTML = handleSVG(shiftedCard)
-  plusDiv.innerHTML = plus
-  card.append(plusDiv)
-  card.innerHTML += handleValue(shiftedCard)
 
-  lane.append(card)
+  switch (shiftedCard.type) {
+    case "encounter":
+      const card = document.createElement("div")
+      const plusDiv = document.createElement("div")
+      card.className = "card front"
+      card.innerHTML = handleSVG(shiftedCard)
+      plusDiv.innerHTML = plus
+      card.append(plusDiv)
+      card.onclick = () => addCardOn(shiftedCard)
+      card.innerHTML += handleValue(shiftedCard)
+
+      lane.append(card)
+
+      break
+    case "treasure":
+      TempTreasure.push(shiftedCard)
+
+      dealMainCard()
+      break
+    case "auto":
+      const autoCard = document.createElement("div")
+      autoCard.className = "card front"
+      autoCard.innerHTML = handleSVG(shiftedCard)
+      if (shiftedCard.suit === "torch") {
+        TORCHES.append(autoCard)
+      } else {
+        DIVINITY.append(autoCard)
+      }
+  }
+}
+
+function addCardOn(encounterCard) {
+  let shiftedCard = deck.shift()
 }
 
 function handleValue(card) {
@@ -83,7 +111,7 @@ function delveDungeon() {
   turn++
   deleteGhost()
   flipLastCard()
-  dealCards()
+  dealMainCard()
   // if (turn !== retreatTurn * 2 - 1) {
   //   createGhost()
   // }
@@ -106,7 +134,7 @@ function retreatDungeon() {
   flipLastCard()
   lane = RETREAT
   showRetreatLane()
-  dealCards()
+  dealMainCard()
 
   if (turn > 2) {
     if (turn !== retreatTurn * 2 - 1) {

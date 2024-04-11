@@ -22,6 +22,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: space-around;
   border-radius: 4px;
   height: calc(var(--cardHeight)-2px);
   width: var(--cardWidth);
@@ -81,6 +82,11 @@ body {
   margin-left: auto;
   flex-direction: row-reverse;
 }
+.divinity {
+  display: inherit;
+  height: var(--cardHeight);
+}
+
 .HP {
   display: inherit;
   flex-direction: row;
@@ -91,6 +97,7 @@ body {
 #heart {
   background-color: white;
 }
+
 /* Segue seletores não prontos */
 
 .ghost {
