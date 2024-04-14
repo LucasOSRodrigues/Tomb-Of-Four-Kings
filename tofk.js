@@ -9,18 +9,28 @@ const TREASURE = document.querySelector(".treasure")
 const ACTION = document.querySelector(".action")
 const HP = document.querySelector(".HP")
 
+const uncollectedTreasure = []
+
+ROOMS_LEFT.onclick = () => {
+  for (let i = 0; i < 16; i++) {
+    dealMainCard(deck.shift())
+  }
+}
+
 let hp = 9
 let lane = DELVE
 let turn = 0
 let retreatTurn = null
 let unusedDivinity = 0
 let torchCounter = 0
+let actionHand = 0
+let collectedGold = 0
 drawHP()
 createGhost()
 
 //* Gerador de baralho.
 const deck = []
-for (let suit of ["door", "monster", "trap", "hearts"]) {
+for (let suit of ["door", "monster", "trap", "heart"]) {
   deck.push({ type: "treasure", suit: suit })
   deck.push({ type: "treasure", suit: "king" })
   deck.push({ type: "auto", suit: "divinity" })
@@ -38,14 +48,14 @@ console.log(deck)
 for (let cardAmount = 0; cardAmount < deck.length; cardAmount++) {
   setTimeout(() => {
     ROOMS_LEFT.innerText = cardAmount + 1
-  }, cardAmount * 16)
+  }, (cardAmount * 1000) / deck.length)
 }
 function drawHP() {
   HP.innerHTML = ""
   for (let S2 = 0; S2 < hp; S2++)
     setTimeout(() => {
       HP.innerHTML += heart
-    }, S2 * 80)
+    }, (S2 * 1000) / hp)
 }
 
 function createGhost() {
@@ -53,6 +63,7 @@ function createGhost() {
   GHOST.className = "ghost"
 
   const GO_BTN = document.createElement("div")
+  GO_BTN.id = "go_btn"
   GO_BTN.onclick = delveDungeon
   GO_BTN.innerHTML = plus
   GHOST.append(GO_BTN)
@@ -71,9 +82,48 @@ function deleteGhost() {
   lane.removeChild(document.querySelector(".ghost"))
 }
 
-function dealMainCard() {
-  let shiftedCard = deck.shift()
+function delveDungeon() {
+  deleteGhost()
+  flipLastCard()
+  if (dealMainCard(deck.shift())) {
+    if (turn !== retreatTurn * 2 - 1) {
+      createGhost()
+    }
+  }
+}
 
+function retreatDungeon() {
+  retreatTurn = turn
+
+  showRetreatCard()
+  deleteGhost()
+  flipLastCard()
+  lane = RETREAT
+  showRetreatLane()
+  dealMainCard(deck.shift())
+}
+
+function showRetreatLane() {
+  RETREAT.style.height = "var(--cardHeight)"
+  RETREAT.style.visibility = "visible"
+}
+function showRetreatCard() {
+  const retreatCard = document.createElement("div")
+  retreatCard.innerHTML = retreat
+  retreatCard.className = "retreatCard"
+  RETREAT.append(retreatCard)
+}
+
+function flipLastCard() {
+  const lastCard = lane.lastChild
+  if (lastCard) {
+    lastCard.innerHTML = ""
+    lastCard.onclick = ""
+    lastCard.className = "card back"
+  }
+}
+
+function dealMainCard(shiftedCard) {
   switch (shiftedCard.type) {
     case "encounter":
       const card = document.createElement("div")
@@ -92,9 +142,11 @@ function dealMainCard() {
     case "treasure":
       const treasureCard = document.createElement("div")
       treasureCard.className = "flexCard front"
+      treasureCard.cardSuit = shiftedCard.suit
       treasureCard.innerHTML = handleSVG(shiftedCard)
-      TREASURE.append(treasureCard)
+      uncollectedTreasure.push(treasureCard)
 
+      TREASURE.append(treasureCard)
       return true
     case "auto":
       const autoCard = document.createElement("div")
@@ -103,21 +155,17 @@ function dealMainCard() {
         autoCard.className = "flexCard front"
         torchCounter++
         TORCHES.append(autoCard)
-        return true
       } else {
-        if (ACTION.innerHTML) {
+        if (actionHand === 11) {
           unusedDivinity++
           ACTION.innerHTML = ""
         }
         autoCard.className = "card front"
+        actionHand = 11
         ACTION.append(autoCard)
-        return true
       }
+      return true
   }
-}
-
-function addCardOn(encounterCard) {
-  let shiftedCard = deck.shift()
 }
 
 function handleValue(card) {
@@ -125,51 +173,81 @@ function handleValue(card) {
   return handleSVG(card)
 }
 
-function delveDungeon() {
-  deleteGhost()
-  flipLastCard()
-  if (dealMainCard()) {
-    if (turn !== retreatTurn * 2 - 1) {
-      createGhost()
-    }
-  }
-}
-
-function flipLastCard() {
-  let lastCard = lane.lastChild
-  if (lastCard) {
-    lastCard.innerHTML = ""
-    lastCard.className = "card back"
-  }
-}
-
-function retreatDungeon() {
-  retreatTurn = turn
-  turn++
-
-  showRetreatCard()
-  deleteGhost()
-  flipLastCard()
-  lane = RETREAT
-  showRetreatLane()
-  dealMainCard()
-
-  if (turn > 2) {
-    if (turn !== retreatTurn * 2 - 1) {
-      createGhost()
-    }
-  } else {
+function addCardOn(encounterCard) {
+  if (actionHand === 11) {
     flipLastCard()
+    const divinityCard = ACTION.innerHTML
+    ACTION.innerHTML = ""
+
+    setTimeout(() => {
+      if (unusedDivinity) {
+      }
+    }, 250)
+    ACTION.innerHTML = divinityCard
+    if (turn !== retreatTurn * 2 - 1) createGhost()
+
+    if (!unusedDivinity--) {
+      ACTION.innerHTML = ""
+      actionHand = 0
+    }
+
+    collectTreasure()
+    collectGold(encounterCard)
+  } else {
+    if (deck[0].type === "encounter") {
+      let shiftedCard = deck.shift()
+      actionHand = shiftedCard.value
+      const Card = document.createElement("div")
+      Card.innerHTML = handleSVG(shiftedCard)
+      Card.innerHTML += handleValue(shiftedCard)
+      Card.className = "card front"
+      ACTION.append(Card)
+      handleEncounter(encounterCard, actionHand)
+    } else {
+      dealMainCard(deck.shift())
+    }
   }
 }
 
-function showRetreatLane() {
-  RETREAT.style.height = "var(--cardHeight)"
-  RETREAT.style.visibility = "visible"
+function handleEncounter(encounterCard, actionValue) {
+  setTimeout(() => {
+    if (encounterCard.value > actionValue) {
+    } else {
+      ACTION.innerHTML = ""
+      flipLastCard()
+      if (turn !== retreatTurn * 2 - 1) {
+        createGhost()
+      }
+      collectTreasure()
+      collectGold(encounterCard)
+    }
+  }, 900)
 }
-function showRetreatCard() {
-  const retreatCard = document.createElement("div")
-  retreatCard.innerHTML = retreat
-  retreatCard.className = "retreatCard"
-  RETREAT.append(retreatCard)
+
+function collectGold(trapCard) {
+  if (trapCard.suit === "trap") {
+    if (document.querySelector("#GOLD")) {
+      HAND.removeChild(document.querySelector("#GOLD"))
+    }
+    const coin = document.createElement("div")
+    coin.id = "GOLD"
+    coin.className = "flexCard front"
+    collectedGold += trapCard.value
+    coin.innerHTML = `${gold} ${collectedGold}`
+    HAND.insertAdjacentElement("beforeend", coin)
+  }
+}
+
+function collectTreasure() {
+  if (TREASURE.innerHTML) {
+    for (let treasure of uncollectedTreasure) {
+      if (treasure.cardSuit !== "king") {
+        treasure.onclick = () => {
+          console.log(treasure)
+        }
+        HAND.append(treasure)
+      }
+    }
+    TREASURE.innerHTML = ""
+  }
 }

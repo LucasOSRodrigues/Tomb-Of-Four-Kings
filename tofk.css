@@ -133,3 +133,10 @@ body {
   height: calc(var(--cardHeight)-2px);
   flex-grow: 0.25;
 }
+#go_btn {
+  display: inherit;
+  justify-content: center;
+  align-items: center;
+  width: inherit;
+  height: 70%;
+}
