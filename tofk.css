@@ -102,8 +102,6 @@ body {
   background-color: white;
 }
 
-/* Segue seletores não prontos */
-
 .ghost {
   display: flex;
   justify-content: center;
