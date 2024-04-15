@@ -8,6 +8,7 @@ body {
   font: normal normal large "M PLUS 1 Code", courier, serif;
   margin: 5px;
   background: linear-gradient(#ff2e2e, #070f2b) fixed;
+  margin-top: 15px;
 }
 .hud {
   border-radius: 6px;

@@ -338,7 +338,7 @@ function collectGold(value) {
   coin.onclick = () => {
     distractMonsters(collectedGold)
   }
-  collectedGold !== 0 ? HAND.insertAdjacentElement("beforeend", coin) : false
+  collectedGold > 0 ? HAND.insertAdjacentElement("beforeend", coin) : false
 }
 
 function collectTreasure() {
@@ -346,11 +346,11 @@ function collectTreasure() {
     for (let treasure of uncollectedTreasure) {
       switch (treasure.cardsuit) {
         case "king":
-          treasure.onclick = () => distractMonsters(10)
+          treasure.onclick = dropKing
           treasure.id = "king"
           break
         case "scroll":
-          treasure.onclick = () => distractMonsters(6)
+          treasure.onclick = dropScroll
           treasure.id = "scroll"
           break
         case "door":
@@ -415,6 +415,32 @@ function gameOver() {
   HP.className = "card hud"
 }
 
+function dropKing() {
+  if (!lockAction && actualMainCard?.suit === "monster") {
+    flipLastCard()
+    createGhost()
+
+    HAND.lastChild.remove(document.querySelector("#king"))
+    uncollectedTreasure = []
+    TREASURE.innerHTML = ""
+  }
+}
+
+function dropScroll() {
+  if (
+    !lockAction &&
+    actualMainCard?.suit === "monster" &&
+    6 >= actualMainCard.value
+  ) {
+    flipLastCard()
+    createGhost()
+
+    HAND.lastChild.remove(Document.querySelector("#king"))
+    uncollectedTreasure = []
+    TREASURE.innerHTML = ""
+  }
+}
+
 function useMasterKey() {
   if (!lockAction && actualMainCard?.suit === "door") {
     console.log("door")
@@ -422,7 +448,10 @@ function useMasterKey() {
 }
 function goBerserk() {
   if (!lockAction && actualMainCard?.suit === "monster") {
-    console.log("monster")
+    flipLastCard()
+    collectTreasure()
+    createGhost()
+    HAND.lastChild.remove(document.querySelector("#berserk"))
   }
 }
 function usePotion() {
@@ -432,6 +461,10 @@ function usePotion() {
 }
 function disarmMechanism() {
   if (!lockAction && actualMainCard?.suit === "trap") {
-    console.log("trap")
+    flipLastCard()
+    collectTreasure()
+    collectGold(actualMainCard.value)
+    createGhost()
+    HAND.lastChild.remove(document.querySelector("#king"))
   }
 }
