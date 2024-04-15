@@ -27,6 +27,7 @@ let [
 
 let hp = 9 - lastDamageInstance
 let [lockAction, hasScroll] = [false, false]
+let retreatable = true
 
 drawHP()
 createGhost()
@@ -66,24 +67,28 @@ function drawHP() {
 }
 
 function createGhost() {
-  lockAction = false
-  const GHOST = document.createElement("div")
-  GHOST.className = "ghost"
+  if (turn !== retreatTurn * 2 - 1) {
+    lockAction = false
+    const GHOST = document.createElement("div")
+    GHOST.className = "ghost"
 
-  const GO_BTN = document.createElement("div")
-  GO_BTN.id = "go_btn"
-  GO_BTN.onclick = delveDungeon
-  GO_BTN.innerHTML = plus
-  GHOST.append(GO_BTN)
+    const GO_BTN = document.createElement("div")
+    GO_BTN.id = "go_btn"
+    GO_BTN.onclick = delveDungeon
+    GO_BTN.innerHTML = plus
+    GHOST.append(GO_BTN)
 
-  if (lane === DELVE && turn > 1) {
-    const RETURN_BTN = document.createElement("div")
-    RETURN_BTN.onclick = retreatDungeon
-    RETURN_BTN.innerHTML = retreat
-    RETURN_BTN.id = "return_btn"
-    GHOST.append(RETURN_BTN)
+    if (lane === DELVE && turn > 1 && retreatable) {
+      const RETURN_BTN = document.createElement("div")
+      RETURN_BTN.onclick = retreatDungeon
+      RETURN_BTN.innerHTML = retreat
+      RETURN_BTN.id = "return_btn"
+      GHOST.append(RETURN_BTN)
+    }
+    lane.append(GHOST)
+  } else {
+    gameOver()
   }
-  lane.append(GHOST)
 }
 
 function deleteGhost() {
@@ -96,9 +101,7 @@ function delveDungeon() {
     deleteGhost()
     flipLastCard()
     if (dealMainCard(deck.shift())) {
-      if (turn !== retreatTurn * 2 - 1) {
-        createGhost()
-      }
+      createGhost(1)
     }
   }
 }
@@ -134,6 +137,7 @@ function flipLastCard() {
     lastCard.onclick = ""
     lastCard.className = "card back"
     actualMainCard = null
+    retreatable = true
   }
 }
 
@@ -155,6 +159,7 @@ function dealMainCard(shiftedCard) {
       turn++
       actualMainCard = shiftedCard
       lane.append(card)
+
       if (actionHand === 11) {
         setTimeout(() => {
           addCardOn(shiftedCard)
@@ -165,14 +170,16 @@ function dealMainCard(shiftedCard) {
     case "treasure":
       const treasureCard = document.createElement("div")
       treasureCard.className = "flexCard front"
-      treasureCard.cardSuit = shiftedCard.suit
+      treasureCard.cardsuit = shiftedCard.suit
       treasureCard.innerHTML = handleSVG(shiftedCard)
       uncollectedTreasure.push(treasureCard)
 
       lockAction = false
+      retreatable = false
       TREASURE.append(treasureCard)
       return true
     case "auto":
+      retreatable = false
       lockAction = false
 
       const autoCard = document.createElement("div")
@@ -245,7 +252,7 @@ function handleDivinity(encounterCard) {
 
   setTimeout(() => {
     if (turn !== retreatTurn * 2 - 1) createGhost()
-  }, time)
+  }, time * 0.75)
 }
 
 function handleEncounter(encounterCard, actionValue) {
@@ -260,9 +267,8 @@ function handleEncounter(encounterCard, actionValue) {
     } else {
       ACTION.innerHTML = ""
       flipLastCard()
-      if (turn !== retreatTurn * 2 - 1) {
-        createGhost()
-      }
+      createGhost()
+
       collectTreasure()
       if (encounterCard.suit === "trap") {
         collectGold(encounterCard.value)
@@ -278,7 +284,7 @@ function undrawHP(encounterCard, damage) {
       setTimeout(() => {
         try {
           HP.firstChild.remove(HP.firstChild.lastChild)
-          --hp === 0 ? (HP.className = " card hud") : false
+          --hp === 0 ? gameOver() : false
         } catch (e) {}
       }, (lostS2 * 1000) / damage)
     }
@@ -302,9 +308,7 @@ function uptadeEncounterCard(encounterCard, damage) {
     lane.append(card)
   } else if (encounterCard.suit === "trap") {
     flipLastCard()
-    if (turn !== retreatTurn * 2 - 1) {
-      createGhost()
-    }
+    createGhost()
   } else {
     let roomsLost = encounterCard.value - damage
     for (let cardsLost = 0; cardsLost < roomsLost; cardsLost++) {
@@ -315,9 +319,7 @@ function uptadeEncounterCard(encounterCard, damage) {
     }
   }
   flipLastCard()
-  if (turn !== retreatTurn * 2 - 1) {
-    createGhost()
-  }
+  createGhost()
 }
 
 function undrawCard() {
@@ -336,16 +338,38 @@ function collectGold(value) {
   coin.onclick = () => {
     distractMonsters(collectedGold)
   }
-  HAND.insertAdjacentElement("beforeend", coin)
+  collectedGold !== 0 ? HAND.insertAdjacentElement("beforeend", coin) : false
 }
 
 function collectTreasure() {
   if (TREASURE.innerHTML) {
     for (let treasure of uncollectedTreasure) {
-      treasure.onclick = () => {
-        console.log(treasure)
+      switch (treasure.cardsuit) {
+        case "king":
+          treasure.onclick = () => distractMonsters(10)
+          treasure.id = "king"
+          break
+        case "scroll":
+          treasure.onclick = () => distractMonsters(6)
+          treasure.id = "scroll"
+          break
+        case "door":
+          treasure.onclick = useMasterKey
+          treasure.id = "masterKey"
+          break
+        case "monster":
+          treasure.onclick = goBerserk
+          treasure.id = "berserk"
+          break
+        case "trap":
+          treasure.onclick = disarmMechanism
+          treasure.id = "disarm"
+          break
+        case "heart":
+          treasure.onclick = usePotion
+          treasure.id = "potion"
       }
-      HAND.append(treasure)
+      collectedTreasure.push(treasure)
     }
     uncollectedTreasure = []
     TREASURE.innerHTML = ""
@@ -355,14 +379,59 @@ function collectTreasure() {
 
 function distractMonsters(goldAmount) {
   if (
-    !lockAction ||
-    actualMainCard.suit === "monster" ||
+    !lockAction &&
+    actualMainCard?.suit === "monster" &&
     goldAmount >= actualMainCard.value
   ) {
+    collectGold(-actualMainCard.value)
     flipLastCard()
+    createGhost()
+
     uncollectedTreasure = []
     TREASURE.innerHTML = ""
   }
 }
 
-function sortHand() {}
+function sortHand() {
+  let sortedHand = []
+  for (let skills of collectedTreasure) {
+    if (["door", "monster", "trap", "heart"].includes(skills.cardsuit)) {
+      sortedHand.push(skills)
+    }
+  }
+  for (let kings of collectedTreasure) {
+    if (kings.cardsuit === "king") {
+      sortedHand.push(kings)
+    }
+  }
+
+  for (let treasure of sortedHand) {
+    HAND.append(treasure)
+  }
+  collectGold(0)
+}
+
+function gameOver() {
+  HP.className = "card hud"
+}
+
+function useMasterKey() {
+  if (!lockAction && actualMainCard?.suit === "door") {
+    console.log("door")
+  }
+}
+function goBerserk() {
+  if (!lockAction && actualMainCard?.suit === "monster") {
+    console.log("monster")
+  }
+}
+function usePotion() {
+  if (!lockAction && lastDamageInstance) {
+    console.log("heart")
+  }
+}
+function disarmMechanism() {
+  if (!lockAction && actualMainCard?.suit === "trap") {
+    console.log("trap")
+  }
+}
