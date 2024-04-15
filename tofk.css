@@ -1,7 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=M+PLUS+1+Code:wght@100..700&display=swap");
 :root {
   --cardHeight: 23.1vh;
-  --cardWidth: 125px;
+  --cardWidth: 9.2vw;
   --fade: #ff3f3f, #a22273, #010822;
 }
 body {
@@ -147,5 +147,13 @@ body {
   justify-content: center;
   align-items: center;
   width: inherit;
-  height: 70%;
+  height: 65%;
+}
+
+#return_btn {
+  display: inherit;
+  justify-content: center;
+  align-items: center;
+  width: inherit;
+  height: 35%;
 }
