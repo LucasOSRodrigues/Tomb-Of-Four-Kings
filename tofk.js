@@ -9,11 +9,6 @@ const ACTION = document.querySelector(".action")
 const HP = document.querySelector(".HP")
 const time = 800
 
-function swap(x, y) {
-  ;[deck[x], deck[y]] = [deck[y], deck[x]]
-  return deck
-}
-
 let [collectedTreasure, uncollectedTreasure] = [[], []]
 let lane = DELVE
 let [retreatTurn, actualMainCard] = [null, null]
@@ -45,14 +40,14 @@ for (let suit of ["door", "monster", "trap", "heart"]) {
   deck.push({ type: "auto", suit: "divinity" })
   deck.push({ type: "auto", suit: "torch" })
 }
+deck.push({ type: "treasure", suit: "scroll" })
 for (let index = 2; index <= 10; index++) {
   deck.push({ type: "encounter", suit: "door", value: index })
   deck.push({ type: "encounter", suit: "monster", value: index })
   deck.push({ type: "encounter", suit: "trap", value: index })
 }
-deck.push({ type: "treasure", suit: "scroll" })
 
-let randomNum = Math.round(Math.random() * 44)
+let randomNum = Math.round(Math.random() * 43) + 1
 for (let scrambler = 0; scrambler < randomNum; scrambler++) {
   deck.sort(() => (Math.random() > 0.5 ? 1 : -1))
 }
