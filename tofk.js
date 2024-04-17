@@ -38,9 +38,6 @@ let retreatable = true
 drawHP()
 createGhost()
 
-//todo inicializar as funções de Fim de Jogo
-//todo Agrupar reis se houver mais de 1
-
 const deck = []
 for (let suit of ["door", "monster", "trap", "heart"]) {
   deck.push({ type: "treasure", suit: suit })
@@ -59,7 +56,6 @@ let randomNum = Math.round(Math.random() * 44)
 for (let scrambler = 0; scrambler < randomNum; scrambler++) {
   deck.sort(() => (Math.random() > 0.5 ? 1 : -1))
 }
-console.log(deck, randomNum)
 
 for (let cardAmount = 0; cardAmount < deck.length; cardAmount++) {
   setTimeout(() => {
@@ -174,7 +170,6 @@ function dealMainCard(shiftedCard) {
         }, time)
       }
       return false
-
     case "treasure":
       const treasureCard = document.createElement("div")
       treasureCard.className = "flexCard front"
@@ -362,7 +357,6 @@ function uptadeEncounterCard(encounterCard, damage) {
     if (hasKey) {
       lane.removeChild(lane.lastChild)
 
-      encounterCard.value -= damage
       const card = document.createElement("div")
       const plusDiv = document.createElement("div")
       card.className = "card front"
@@ -373,16 +367,16 @@ function uptadeEncounterCard(encounterCard, damage) {
       card.innerHTML += handleValue(encounterCard)
 
       lockAction ? (lockAction = false) : false
-      actualMainCard = encounterCard
       hadLastChance = true
       lane.append(card)
-    }
-    let roomsLost = encounterCard.value - damage
-    for (let cardsLost = 0; cardsLost < roomsLost; cardsLost++) {
-      setTimeout(() => {
-        nextRoom()
-        undrawCard()
-      }, cardsLost * (800 / damage))
+    } else {
+      let roomsLost = encounterCard.value - damage
+      for (let cardsLost = 0; cardsLost < roomsLost; cardsLost++) {
+        setTimeout(() => {
+          nextRoom()
+          undrawCard()
+        }, cardsLost * (800 / damage))
+      }
     }
     if (!hasKey) {
       flipLastCard()
@@ -549,7 +543,7 @@ function retreatEnd() {
         ? `You fought like a real warrior.
          Congratulations, everyone will hear you name!`
         : turn >= 9
-        ?`You survived the tomb, not everyone does.
+        ? `You survived the tomb, not everyone does.
          Congratulations.`
         : `Not so deep, just like most adventurers.
          At least you're alive.`
@@ -616,12 +610,13 @@ function torchesOver() {
 
 function dropKing() {
   if (!lockAction && actualMainCard?.suit === "monster") {
+    collectedKing--
     flipLastCard()
     createGhost()
 
-    HAND.removeChild(document.querySelector("#king"))
     uncollectedTreasure = []
     TREASURE.innerHTML = ""
+    HAND.removeChild(document.querySelector("#king"))
   }
 }
 
@@ -673,13 +668,13 @@ function disarmMechanism() {
     collectTreasure()
     flipLastCard()
     createGhost()
-    HAND.removeChild(document.querySelector("disarm"))
+    HAND.removeChild(document.querySelector("#disarm"))
   }
 }
 
 function burnScroll() {
-  TORCHES.removeChild(TREASURE.lastChild)
-  TREASURE.removeChild(document.querySelector("#scroll"))
+  TORCHES.removeChild(TORCHES.lastChild)
+  HAND.removeChild(document.querySelector("#scroll"))
   torchCounter--
   deck.push({ type: "auto", suit: "torch" })
 }
@@ -691,7 +686,7 @@ function estatistics(state) {
   Kings Left Behind: ${collectedKing}.
   gold left behind: ${collectedGold}.
   Total fortune left hebind: ${
-    (collectedGold + collectedKing * 10 + hasScroll ? 6 : 0) * 100
+    (collectedGold + collectedKing * 10 + (hasScroll ? 6 : 0)) * 100
   } coins.
   Skills collected: ${TotalSkills}.
   Torches burnt: ${torchCounter}.`
@@ -700,7 +695,7 @@ function estatistics(state) {
       Kings collected: ${collectedKing}.
       gold collected: ${collectedGold}.
       Total fortune collected: ${
-        (collectedGold + collectedKing * 10 + hasScroll ? 6 : 0) * 100
+        (collectedGold + collectedKing * 10 + (hasScroll ? 6 : 0)) * 100
       } coins.
       Skills collected: ${TotalSkills}.
       Torches burnt: ${torchCounter}.`
@@ -709,7 +704,7 @@ function estatistics(state) {
       Kings remained: ${collectedKing}.
       gold remained: ${collectedGold}.
       Total fortune remained: ${
-        (collectedGold + (collectedKing * 10) + hasScroll ? 6 : 0) * 100
+        (collectedGold + collectedKing * 10 + (hasScroll ? 6 : 0)) * 100
       } coins.
       Skills collected: ${TotalSkills}.
       Torches burnt: ${torchCounter}.`
@@ -718,9 +713,9 @@ function estatistics(state) {
       Kings lost: ${collectedKing}.
       gold lost: ${collectedGold}.
       Total fortune lost: ${
-        (collectedGold + collectedKing * 10 + hasScroll ? 6 : 0) * 100
+        (collectedGold + collectedKing * 10 + (hasScroll ? 6 : 0)) * 100
       } coins.
       Skills collected: ${TotalSkills}.
-      Torches burnt: ${torchCounter}.`
+      Torches burnt: All of them.`
   }
 }
