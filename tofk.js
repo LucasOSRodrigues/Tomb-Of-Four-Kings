@@ -38,12 +38,8 @@ let retreatable = true
 drawHP()
 createGhost()
 
-
-
 //todo inicializar as funções de Fim de Jogo
 //todo Agrupar reis se houver mais de 1
-
-
 
 const deck = []
 for (let suit of ["door", "monster", "trap", "heart"]) {
@@ -112,8 +108,8 @@ function delveDungeon() {
     lockAction = true
     deleteGhost()
     flipLastCard()
-    if (dealMainCard(deck.shift())) {
-      createGhost(1)
+    if (dealMainCard(nextRoom())) {
+      createGhost()
     }
   }
 }
@@ -127,8 +123,8 @@ function retreatDungeon() {
   lane = RETREAT
   showRetreatLane()
 
-  for (; deck[0].type !== "encounter"; ) dealMainCard(deck.shift())
-  dealMainCard(deck.shift())
+  for (; deck[0].type !== "encounter"; ) dealMainCard(nextRoom())
+  dealMainCard(nextRoom())
 }
 
 function showRetreatLane() {
@@ -199,6 +195,19 @@ function dealMainCard(shiftedCard) {
       if (shiftedCard.suit === "torch") {
         autoCard.className = "quarterCard front"
         torchCounter++
+
+        if (torchCounter === 4) {
+          if (hasScroll) {
+            setTimeout(() => {
+              burnScroll()
+            }, 500)
+          } else {
+            setTimeout(() => {
+              torchesOver()
+            }, 500)
+          }
+        }
+
         TORCHES.append(autoCard)
       } else {
         if (actionHand === 11) {
@@ -240,14 +249,14 @@ function addCardOn(encounterCard) {
       let roomsLost = encounterCard.value
       for (let cardsLost = 0; cardsLost < roomsLost; cardsLost++) {
         setTimeout(() => {
-          deck.shift()
+          nextRoom()
           undrawCard()
         }, cardsLost * (800 / roomsLost))
       }
       flipLastCard()
       createGhost()
     } else if (deck[0].type === "encounter") {
-      let shiftedCard = deck.shift()
+      let shiftedCard = nextRoom()
       undrawCard()
       actionHand = shiftedCard.value
       const Card = document.createElement("div")
@@ -257,7 +266,7 @@ function addCardOn(encounterCard) {
       ACTION.append(Card)
       handleEncounter(encounterCard, actionHand)
     } else {
-      dealMainCard(deck.shift())
+      dealMainCard(nextRoom())
     }
   }
 }
@@ -371,7 +380,7 @@ function uptadeEncounterCard(encounterCard, damage) {
     let roomsLost = encounterCard.value - damage
     for (let cardsLost = 0; cardsLost < roomsLost; cardsLost++) {
       setTimeout(() => {
-        deck.shift()
+        nextRoom()
         undrawCard()
       }, cardsLost * (800 / damage))
     }
@@ -379,6 +388,14 @@ function uptadeEncounterCard(encounterCard, damage) {
       flipLastCard()
       createGhost()
     }
+  }
+}
+
+function nextRoom() {
+  if (deck[0]) {
+    return deck.shift()
+  } else {
+    cardsOver()
   }
 }
 
@@ -406,26 +423,37 @@ function collectTreasure() {
     for (let treasure of uncollectedTreasure) {
       switch (treasure.cardsuit) {
         case "king":
+          collectedKing++
           treasure.onclick = dropKing
           treasure.id = "king"
           break
         case "scroll":
           treasure.onclick = dropScroll
           treasure.id = "scroll"
+          hasScroll = true
           break
         case "door":
+          hasKey = true
+          collectedSkills.push("Master Key")
+          TotalSkills++
           treasure.onclick = useMasterKey
           treasure.id = "masterKey"
           break
         case "monster":
+          collectedSkills.push("Go Berserk")
+          TotalSkills++
           treasure.onclick = goBerserk
           treasure.id = "berserk"
           break
         case "trap":
+          collectedSkills.push("Disarm mechanism")
+          TotalSkills++
           treasure.onclick = disarmMechanism
           treasure.id = "disarm"
           break
         case "heart":
+          collectedSkills.push("Health Potion")
+          TotalSkills++
           treasure.onclick = usePotion
           treasure.id = "potion"
       }
@@ -452,11 +480,14 @@ function distractMonsters(goldAmount) {
   }
 }
 
+let collectedKing = 0
+let TotalSkills = 0
+let collectedSkills = []
+
 function sortHand() {
   let sortedHand = []
   for (let skills of collectedTreasure) {
     if (["door", "monster", "trap", "heart"].includes(skills.cardsuit)) {
-      if (skills.cardsuit === "door") hasKey = true
       sortedHand.push(skills)
     }
   }
@@ -468,7 +499,6 @@ function sortHand() {
   for (let scroll of collectedTreasure) {
     if (scroll.cardsuit === "scroll") {
       sortedHand.push(scroll)
-      hasScroll = true
     }
   }
 
@@ -478,10 +508,111 @@ function sortHand() {
   collectGold(0)
 }
 
-function lifeOver() {}
-function retreatEnd() {}
-function cardsOver() {}
-function torchesOVer() {}
+function lifeOver() {
+  let body = document.querySelector("body")
+  if (body.firstChild?.firstChild) {
+    body.firstChild.firstChild.remove()
+  } else if (body.firstChild) {
+    body.firstChild.remove()
+  }
+  if (body.innerHTML === "") {
+    let title = document.createElement("h1")
+    let text = document.createElement("div")
+    body.className = "box"
+    text.className = "finalTxt"
+    title.innerText = "You crawl in your own blood, until you can no longer."
+    title.className = "title"
+    body.append(title)
+    text.innerText += `${estatistics("Dead")}`
+
+    body.append(text)
+    return "Dead"
+  }
+  setTimeout(() => {
+    return lifeOver()
+  }, 50)
+}
+function retreatEnd() {
+  let body = document.querySelector("body")
+  if (body.firstChild?.firstChild) {
+    body.firstChild.firstChild.remove()
+  } else if (body.firstChild) {
+    body.firstChild.remove()
+  }
+  if (body.innerHTML === "") {
+    let title = document.createElement("h1")
+    let text = document.createElement("div")
+    body.className = "box"
+    text.className = "finalTxt"
+    title.innerText =
+      turn >= 15
+        ? `You fought like a real warrior.
+         Congratulations, everyone will hear you name!`
+        : turn >= 9
+        ?`You survived the tomb, not everyone does.
+         Congratulations.`
+        : `Not so deep, just like most adventurers.
+         At least you're alive.`
+    title.className = "title"
+    body.append(title)
+    text.innerText += `${estatistics("Alive")}`
+
+    body.append(text)
+    return "Alive"
+  }
+  setTimeout(() => {
+    return retreatEnd()
+  }, 50)
+}
+function cardsOver() {
+  let body = document.querySelector("body")
+  if (body.firstChild?.firstChild) {
+    body.firstChild.firstChild.remove()
+  } else if (body.firstChild) {
+    body.firstChild.remove()
+  }
+  if (body.innerHTML === "") {
+    let title = document.createElement("h1")
+    let text = document.createElement("div")
+    body.className = "box"
+    text.className = "finalTxt"
+    title.innerText = "The only way out... locked... Forever."
+    title.className = "title"
+    body.append(title)
+    text.innerText += `${estatistics("Stuck")}`
+
+    body.append(text)
+    return "Stuck"
+  }
+  setTimeout(() => {
+    return cardsOver()
+  }, 50)
+}
+function torchesOver() {
+  let body = document.querySelector("body")
+
+  if (body.firstChild?.firstChild) {
+    body.firstChild.firstChild.remove()
+  } else if (body.firstChild) {
+    body.firstChild.remove()
+  }
+  if (body.innerHTML === "") {
+    let title = document.createElement("h1")
+    let text = document.createElement("div")
+    body.className = "box"
+    text.className = "finalTxt"
+    title.innerText = "The fire slowly extinguishes... Forever"
+    title.className = "title"
+    body.append(title)
+    text.innerText += `${estatistics("Lost")}`
+
+    body.append(text)
+    return "Lost"
+  }
+  setTimeout(() => {
+    return torchesOver()
+  }, 50)
+}
 
 function dropKing() {
   if (!lockAction && actualMainCard?.suit === "monster") {
@@ -543,5 +674,53 @@ function disarmMechanism() {
     flipLastCard()
     createGhost()
     HAND.removeChild(document.querySelector("disarm"))
+  }
+}
+
+function burnScroll() {
+  TORCHES.removeChild(TREASURE.lastChild)
+  TREASURE.removeChild(document.querySelector("#scroll"))
+  torchCounter--
+  deck.push({ type: "auto", suit: "torch" })
+}
+
+function estatistics(state) {
+  switch (state) {
+    case "Dead":
+      return `Rooms visited: ${turn}.
+  Kings Left Behind: ${collectedKing}.
+  gold left behind: ${collectedGold}.
+  Total fortune left hebind: ${
+    (collectedGold + collectedKing * 10 + hasScroll ? 6 : 0) * 100
+  } coins.
+  Skills collected: ${TotalSkills}.
+  Torches burnt: ${torchCounter}.`
+    case "Alive":
+      return `Rooms visited: ${turn}.
+      Kings collected: ${collectedKing}.
+      gold collected: ${collectedGold}.
+      Total fortune collected: ${
+        (collectedGold + collectedKing * 10 + hasScroll ? 6 : 0) * 100
+      } coins.
+      Skills collected: ${TotalSkills}.
+      Torches burnt: ${torchCounter}.`
+    case "Stuck":
+      return `Rooms visited: All of them.
+      Kings remained: ${collectedKing}.
+      gold remained: ${collectedGold}.
+      Total fortune remained: ${
+        (collectedGold + (collectedKing * 10) + hasScroll ? 6 : 0) * 100
+      } coins.
+      Skills collected: ${TotalSkills}.
+      Torches burnt: ${torchCounter}.`
+    case "Lost":
+      return `Rooms visited: ${turn}.
+      Kings lost: ${collectedKing}.
+      gold lost: ${collectedGold}.
+      Total fortune lost: ${
+        (collectedGold + collectedKing * 10 + hasScroll ? 6 : 0) * 100
+      } coins.
+      Skills collected: ${TotalSkills}.
+      Torches burnt: ${torchCounter}.`
   }
 }
