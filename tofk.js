@@ -156,6 +156,8 @@ function dealMainCard(shiftedCard) {
 
       lockAction = false
       turn++
+
+      if (retreatTurn && turn > retreatTurn * 2 - 1) turn = retreatTurn * 2 - 1
       actualMainCard = shiftedCard
       lane.append(card)
 
@@ -505,9 +507,9 @@ function lifeOver() {
     body.firstChild.remove()
   }
   if (body.innerHTML === "") {
+    body.className = "box"
     let title = document.createElement("h1")
     let text = document.createElement("div")
-    body.className = "box"
     text.className = "finalTxt"
     title.innerText = "You crawl in your own blood, until you can no longer."
     title.className = "title"
@@ -515,6 +517,12 @@ function lifeOver() {
     text.innerText += `${estatistics("Dead")}`
 
     body.append(text)
+
+    let btn = document.createElement("div")
+    btn.className = "finalTxt"
+    btn.onclick = () => location.reload()
+    btn.innerText = "Try Again"
+    body.append(btn)
     return "Dead"
   }
   setTimeout(() => {
@@ -529,9 +537,9 @@ function retreatEnd() {
     body.firstChild.remove()
   }
   if (body.innerHTML === "") {
+    body.className = "box"
     let title = document.createElement("h1")
     let text = document.createElement("div")
-    body.className = "box"
     text.className = "finalTxt"
     title.innerText =
       turn >= 15
@@ -547,6 +555,12 @@ function retreatEnd() {
     text.innerText += `${estatistics("Alive")}`
 
     body.append(text)
+
+    let btn = document.createElement("div")
+    btn.className = "finalTxt"
+    btn.onclick = () => location.reload()
+    btn.innerText = "Play Again"
+    body.append(btn)
     return "Alive"
   }
   setTimeout(() => {
@@ -561,9 +575,9 @@ function cardsOver() {
     body.firstChild.remove()
   }
   if (body.innerHTML === "") {
+    body.className = "box"
     let title = document.createElement("h1")
     let text = document.createElement("div")
-    body.className = "box"
     text.className = "finalTxt"
     title.innerText = "The only way out... locked... Forever."
     title.className = "title"
@@ -571,6 +585,12 @@ function cardsOver() {
     text.innerText += `${estatistics("Stuck")}`
 
     body.append(text)
+
+    let btn = document.createElement("div")
+    btn.className = "finalTxt"
+    btn.onclick = () => location.reload()
+    btn.innerText = "Try Again"
+    body.append(btn)
     return "Stuck"
   }
   setTimeout(() => {
@@ -586,16 +606,22 @@ function torchesOver() {
     body.firstChild.remove()
   }
   if (body.innerHTML === "") {
+    body.className = "box"
     let title = document.createElement("h1")
     let text = document.createElement("div")
-    body.className = "box"
     text.className = "finalTxt"
-    title.innerText = "The fire slowly extinguishes... Forever"
+    title.innerText = "The fire slowly extinguishes... Forever."
     title.className = "title"
     body.append(title)
     text.innerText += `${estatistics("Lost")}`
 
     body.append(text)
+
+    let btn = document.createElement("div")
+    btn.className = "finalTxt"
+    btn.onclick = () => location.reload()
+    btn.innerText = "Try Again"
+    body.append(btn)
     return "Lost"
   }
   setTimeout(() => {
