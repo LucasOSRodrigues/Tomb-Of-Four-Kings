@@ -22,7 +22,8 @@ let [
 ] = [0, 0, 0, 0, 0, 0, 0]
 
 let hp = 9 - lastDamageInstance
-let [lockAction, hasScroll, hasKey, hadLastChance] = [
+let [lockAction, hasScroll, hasKey, hadLastChance, hasPotion] = [
+  false,
   false,
   false,
   false,
@@ -135,9 +136,12 @@ function flipLastCard() {
     lastCard.innerHTML = ""
     lastCard.onclick = ""
     lastCard.className = "card back"
+
+    lastDamageInstance = 0
     actualMainCard = null
     retreatable = true
   }
+  if (deck.length === 0) cardsOver()
 }
 
 function dealMainCard(shiftedCard) {
@@ -284,14 +288,14 @@ function handleDivinity(encounterCard) {
   }
 
   setTimeout(() => {
-    if (turn !== retreatTurn * 2 - 1) createGhost()
+    createGhost()
   }, time * 0.75)
 }
 
 function handleEncounter(encounterCard, actionValue) {
   setTimeout(() => {
+    ACTION.innerHTML = ""
     if (encounterCard.value > actionValue) {
-      ACTION.innerHTML = ""
       actionHand = 0
 
       if (
@@ -303,8 +307,16 @@ function handleEncounter(encounterCard, actionValue) {
       }
       if (encounterCard.suit !== "door") {
         lastDamageInstance = encounterCard.value - actionValue
-        undrawHP(encounterCard, lastDamageInstance)
+
+        if (hasPotion && hp - lastDamageInstance <= 0) {
+          lastDamageInstance = 0
+          removeFromCollectedTreasure("heart")
+          HAND.removeChild(document.querySelector("#potion"))
+        } else {
+          undrawHP(encounterCard, lastDamageInstance)
+        }
       }
+
       uptadeEncounterCard(encounterCard, actionValue)
     } else {
       ACTION.innerHTML = ""
@@ -320,7 +332,7 @@ function handleEncounter(encounterCard, actionValue) {
 }
 
 function undrawHP(encounterCard, damage) {
-  if (encounterCard.suit === "monster" || encounterCard.suit === "trap")
+  if (encounterCard.suit === "monster" || encounterCard.suit === "trap") {
     for (let lostS2 = 0; lostS2 < damage; lostS2++) {
       setTimeout(() => {
         try {
@@ -329,6 +341,7 @@ function undrawHP(encounterCard, damage) {
         } catch (e) {}
       }, (lostS2 * 1000) / damage)
     }
+  }
 }
 function uptadeEncounterCard(encounterCard, damage) {
   if (encounterCard.suit === "monster") {
@@ -374,8 +387,6 @@ function uptadeEncounterCard(encounterCard, damage) {
           undrawCard()
         }, cardsLost * (800 / damage))
       }
-    }
-    if (!hasKey) {
       flipLastCard()
       createGhost()
     }
@@ -499,7 +510,23 @@ function sortHand() {
   collectGold(0)
 }
 
+function removeFromCollectedTreasure(suit) {
+  for (let index in collectedTreasure) {
+    if (collectedTreasure[index].cardsuit === suit) {
+      ;[collectedTreasure[0], collectedTreasure[index]] = [
+        collectedTreasure[index],
+        collectedTreasure[0],
+      ]
+      collectedTreasure.shift()
+      if (index.cardsuit === "king") {
+        return
+      }
+    }
+  }
+}
+
 function lifeOver() {
+  HP.className = "card bud HP"
   let body = document.querySelector("body")
   if (body.firstChild?.firstChild) {
     body.firstChild.firstChild.remove()
@@ -511,7 +538,7 @@ function lifeOver() {
     let title = document.createElement("h1")
     let text = document.createElement("div")
     text.className = "finalTxt"
-    title.innerText = "You crawl in your own blood, until you can no longer."
+    title.innerText = dialog("Dead")
     title.className = "title"
     body.append(title)
     text.innerText += `${estatistics("Dead")}`
@@ -541,15 +568,8 @@ function retreatEnd() {
     let title = document.createElement("h1")
     let text = document.createElement("div")
     text.className = "finalTxt"
-    title.innerText =
-      turn >= 15
-        ? `You fought like a real warrior.
-         Congratulations, everyone will hear you name!`
-        : turn >= 9
-        ? `You survived the tomb, not everyone does.
-         Congratulations.`
-        : `Not so deep, just like most adventurers.
-         At least you're alive.`
+    title.innerText = dialog("Alive")
+
     title.className = "title"
     body.append(title)
     text.innerText += `${estatistics("Alive")}`
@@ -579,7 +599,7 @@ function cardsOver() {
     let title = document.createElement("h1")
     let text = document.createElement("div")
     text.className = "finalTxt"
-    title.innerText = "The only way out... locked... Forever."
+    title.innerText = dialog("Stuck")
     title.className = "title"
     body.append(title)
     text.innerText += `${estatistics("Stuck")}`
@@ -610,7 +630,7 @@ function torchesOver() {
     let title = document.createElement("h1")
     let text = document.createElement("div")
     text.className = "finalTxt"
-    title.innerText = "The fire slowly extinguishes... Forever."
+    title.innerText = dialog("Lost")
     title.className = "title"
     body.append(title)
     text.innerText += `${estatistics("Lost")}`
@@ -637,6 +657,7 @@ function dropKing() {
 
     uncollectedTreasure = []
     TREASURE.innerHTML = ""
+    removeFromCollectedTreasure("king")
     HAND.removeChild(document.querySelector("#king"))
   }
 }
@@ -651,6 +672,7 @@ function dropScroll() {
     flipLastCard()
     createGhost()
 
+    removeFromCollectedTreasure("scroll")
     HAND.removeChild(Document.querySelector("#scroll"))
     uncollectedTreasure = []
     TREASURE.innerHTML = ""
@@ -663,6 +685,7 @@ function useMasterKey() {
     flipLastCard()
     createGhost()
     hasKey = false
+    removeFromCollectedTreasure("door")
     HAND.removeChild(document.querySelector("#masterKey"))
   }
 }
@@ -671,6 +694,7 @@ function goBerserk() {
     collectTreasure()
     flipLastCard()
     createGhost()
+    removeFromCollectedTreasure("monster")
     HAND.removeChild(document.querySelector("#berserk"))
   }
 }
@@ -680,6 +704,9 @@ function usePotion() {
     hp = lastDamageInstance
     drawHP()
     hp = lastHp + lastDamageInstance
+    lastDamageInstance = 0
+    hasPotion = false
+    removeFromCollectedTreasure("heart")
     HAND.removeChild(document.querySelector("#potion"))
   }
 }
@@ -689,54 +716,16 @@ function disarmMechanism() {
     collectTreasure()
     flipLastCard()
     createGhost()
+    removeFromCollectedTreasure("trap")
     HAND.removeChild(document.querySelector("#disarm"))
   }
 }
 
 function burnScroll() {
-  TORCHES.removeChild(TORCHES.lastChild)
+  removeFromCollectedTreasure("scroll")
   HAND.removeChild(document.querySelector("#scroll"))
+  TORCHES.removeChild(TORCHES.lastChild)
+  hasScroll = false
   torchCounter--
   deck.push({ type: "auto", suit: "torch" })
-}
-
-function estatistics(state) {
-  switch (state) {
-    case "Dead":
-      return `Rooms visited: ${turn}.
-  Kings Left Behind: ${collectedKing}.
-  gold left behind: ${collectedGold}.
-  Total fortune left hebind: ${
-    (collectedGold + collectedKing * 10 + (hasScroll ? 6 : 0)) * 100
-  } coins.
-  Skills collected: ${TotalSkills}.
-  Torches burnt: ${torchCounter}.`
-    case "Alive":
-      return `Rooms visited: ${turn}.
-      Kings collected: ${collectedKing}.
-      gold collected: ${collectedGold}.
-      Total fortune collected: ${
-        (collectedGold + collectedKing * 10 + (hasScroll ? 6 : 0)) * 100
-      } coins.
-      Skills collected: ${TotalSkills}.
-      Torches burnt: ${torchCounter}.`
-    case "Stuck":
-      return `Rooms visited: All of them.
-      Kings remained: ${collectedKing}.
-      gold remained: ${collectedGold}.
-      Total fortune remained: ${
-        (collectedGold + collectedKing * 10 + (hasScroll ? 6 : 0)) * 100
-      } coins.
-      Skills collected: ${TotalSkills}.
-      Torches burnt: ${torchCounter}.`
-    case "Lost":
-      return `Rooms visited: ${turn}.
-      Kings lost: ${collectedKing}.
-      gold lost: ${collectedGold}.
-      Total fortune lost: ${
-        (collectedGold + collectedKing * 10 + (hasScroll ? 6 : 0)) * 100
-      } coins.
-      Skills collected: ${TotalSkills}.
-      Torches burnt: All of them.`
-  }
 }
