@@ -29,6 +29,7 @@ let [lockAction, hasScroll, hasKey, hadLastChance, hasPotion] = [
   false,
   false,
 ]
+let [usedScroll, usedPotion] = [false, false]
 let retreatable = true
 
 drawHP()
@@ -146,7 +147,7 @@ function flipLastCard() {
 
 function dealMainCard(shiftedCard) {
   undrawCard()
-  switch (shiftedCard.type) {
+  switch (shiftedCard ? shiftedCard.type : false) {
     case "encounter":
       const card = document.createElement("div")
       const plusDiv = document.createElement("div")
@@ -251,7 +252,7 @@ function addCardOn(encounterCard) {
       }
       flipLastCard()
       createGhost()
-    } else if (deck[0].type === "encounter") {
+    } else if (deck[0] ? deck[0].type === "encounter" : false) {
       let shiftedCard = nextRoom()
       undrawCard()
       actionHand = shiftedCard.value
@@ -310,6 +311,8 @@ function handleEncounter(encounterCard, actionValue) {
 
         if (hasPotion && hp - lastDamageInstance <= 0) {
           lastDamageInstance = 0
+          hasPotion = false
+          usedPotion = true
           removeFromCollectedTreasure("heart")
           HAND.removeChild(document.querySelector("#potion"))
         } else {
@@ -454,6 +457,7 @@ function collectTreasure() {
           treasure.id = "disarm"
           break
         case "heart":
+          hasPotion = true
           collectedSkills.push("Health Potion")
           TotalSkills++
           treasure.onclick = usePotion
@@ -706,6 +710,7 @@ function usePotion() {
     hp = lastHp + lastDamageInstance
     lastDamageInstance = 0
     hasPotion = false
+    usedPotion = true
     removeFromCollectedTreasure("heart")
     HAND.removeChild(document.querySelector("#potion"))
   }
@@ -727,5 +732,6 @@ function burnScroll() {
   TORCHES.removeChild(TORCHES.lastChild)
   hasScroll = false
   torchCounter--
+  usedScroll = true
   deck.push({ type: "auto", suit: "torch" })
 }
