@@ -7,5 +7,4 @@ Eu descobri esse jogo vagando pela internet e gostei da sua simplicidade. Mas ti
 Então, aproveitando meus estudos em JS, HTML e CSS, decidi programar esse jogo para praticar e me divertir ocasionalmente sem a presença de um baralho físico.
 
 O site está em inglês (E os códigos também) por nenhum motivo específico, só me deu na telha. É possível traduzir o site para português.
--------------
 
