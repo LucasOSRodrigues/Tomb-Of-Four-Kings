@@ -1,21 +1,19 @@
+let totalFortune = (collectedGold + collectedKing * 10 + (hasScroll ? 6 : 0)) * 100)
+
 function estatistics(state) {
   switch (state) {
     case "Dead":
       return `Rooms visited: ${turn}.
     Kings Left Behind: ${collectedKing}.
     gold left behind: ${collectedGold}.
-    Total fortune left hebind: ${
-      (collectedGold + collectedKing * 10 + (hasScroll ? 6 : 0)) * 100
-    } coins.
+    Total fortune left hebind: ${totalFortune} coins.
     Skills collected: ${TotalSkills}${orderSkills(collectedSkills)}.
     Torches burnt: ${torchCounter}.`
     case "Alive":
       return `Rooms visited: ${turn}.
         Kings collected: ${collectedKing}.
         gold collected: ${collectedGold}.
-        Total fortune collected: ${
-          (collectedGold + collectedKing * 10 + (hasScroll ? 6 : 0)) * 100
-        } coins.
+        Total fortune collected: ${totalFortune} coins.
         Skills collected: ${TotalSkills}${orderSkills(collectedSkills)}.
         Torches burnt: ${torchCounter}.
         score: ${collectedKing}/${
@@ -25,18 +23,14 @@ function estatistics(state) {
       return `Rooms visited: All of them.
         Kings remained: ${collectedKing}.
         gold remained: ${collectedGold}.
-        Total fortune remained: ${
-          (collectedGold + collectedKing * 10 + (hasScroll ? 6 : 0)) * 100
-        } coins.
+        Total fortune remained: ${totalFortune} coins.
         Skills collected: ${TotalSkills}${orderSkills(collectedSkills)}.
         Torches burnt: ${torchCounter}.`
     case "Lost":
       return `Rooms visited: ${turn}.
         Kings lost: ${collectedKing}.
         gold lost: ${collectedGold}.
-        Total fortune lost: ${
-          (collectedGold + collectedKing * 10 + (hasScroll ? 6 : 0)) * 100
-        } coins.
+        Total fortune lost: ${totalFortune} coins.
         Skills collected: ${TotalSkills}${orderSkills(collectedSkills)}.
         Torches burnt: All of them.`
   }
@@ -56,11 +50,17 @@ function dialog(state) {
         dialog += `Not so deep, just like most adventurers.`
       }
     case "Dead":
-      return `You crawl in your own blood, until you can no longer.`
-    case "Lost":
-      return "The only way out... locked... Forever."
+      dialog += `You crawl in your own blood, until you can no longer.`
     case "Stuck":
-      return "The fire slowly extinguishes... Forever."
+      if (retreatTurn && turn >= retreatTurn * 2 - 4) {
+        dialog += `The way out... so close...
+      } else if (!retreatTurn){
+      dialog += Math.round(Math.random()) ? `You should've retreated earlier.` : `Were you trying to find another exit?`
+      } else {
+      dialog += `The only way out... locked... Forever.`
+      }
+    case "Lost":
+      dialog += `The fire slowly extinguishes... Forever.`
   }
 }
 
