@@ -48,10 +48,10 @@ function dialog(state) {
         dialog += `You fought like a real warrior.`
         dialog +=
           totalFortune > 5000
-            ? "Even the emperor envy your crowns!"
-            : "Everyone will hear your name!"
+            ? " Even the emperor envy your crowns!"
+            : " Everyone will hear your name!"
       } else if (turn > 11) {
-        dialog += `Few adventures did that like you did,`
+        dialog += `Few adventures did that like you did, `
         dialog +=
           totalFortune > 3500
             ? "even fewer got so many treasures!"
@@ -64,8 +64,8 @@ function dialog(state) {
         dialog += `Not so deep, just like most adventurers.`
         dialog +=
           totalFortune > 3000
-            ? "But you've got some coins in it."
-            : "Perhaps you'll try again some day..."
+            ? " But you've got some coins in it."
+            : " Perhaps you'll try again some day..."
       }
       break
     case "Dead":
