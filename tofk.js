@@ -7,7 +7,7 @@ const ROOMS_LEFT = document.querySelector("#roomsLeft")
 const TREASURE = document.querySelector(".treasure")
 const ACTION = document.querySelector(".action")
 const HP = document.querySelector(".HP")
-const time = 800
+const time = 1050
 
 let [collectedTreasure, uncollectedTreasure] = [[], []]
 let lane = DELVE
