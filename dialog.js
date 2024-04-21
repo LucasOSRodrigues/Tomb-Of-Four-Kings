@@ -47,13 +47,13 @@ function dialog(state) {
       } else if (turn >= 15) {
         dialog += `You fought like a real warrior.`
         dialog +=
-          totalFortune > 5000
-            ? " Even the emperor envy your crowns!"
+          totalFortune > 7000
+            ? " Even the emperor envies your fortune!"
             : " Everyone will hear your name!"
       } else if (turn > 11) {
         dialog += `Few adventures did that like you did, `
         dialog +=
-          totalFortune > 3500
+          totalFortune > 5000
             ? "even fewer got so many treasures!"
             : "all your family is proud of you!"
       } else if (turn >= 7) {
