@@ -12,14 +12,9 @@ const time = 1050
 let [collectedTreasure, uncollectedTreasure] = [[], []]
 let lane = DELVE
 let [retreatTurn, actualMainCard] = [null, null]
-let [
-  turn,
-  unusedDivinity,
-  torchCounter,
-  actionHand,
-  collectedGold,
-  lastDamageInstance,
-] = [0, 0, 0, 0, 0, 0, 0]
+let [turn, torchCounter, actionHand, collectedGold, lastDamageInstance] = [
+  0, 0, 0, 0, 0, 0, 0,
+]
 
 let hp = 9 - lastDamageInstance
 let [lockAction, hasScroll, hasKey, hadLastChance, hasPotion] = [
@@ -208,7 +203,6 @@ function dealMainCard(shiftedCard) {
         TORCHES.append(autoCard)
       } else {
         if (actionHand === 11) {
-          unusedDivinity++
           ACTION.innerHTML = ""
         }
 
@@ -269,28 +263,14 @@ function addCardOn(encounterCard) {
 }
 
 function handleDivinity(encounterCard) {
-  const divinityCard = ACTION.innerHTML
   ACTION.innerHTML = ""
-
-  if (unusedDivinity) {
-    unusedDivinity--
-    setTimeout(() => {
-      ACTION.innerHTML = divinityCard
-      lockAction = false
-    }, time)
-  } else {
-    ACTION.innerHTML = ""
-    actionHand = 0
-  }
+  actionHand = 0
 
   collectTreasure()
   if (encounterCard.suit === "trap") {
     collectGold(encounterCard.value)
   }
-
-  setTimeout(() => {
-    createGhost()
-  }, time * 0.75)
+  createGhost()
 }
 
 function handleEncounter(encounterCard, actionValue) {
